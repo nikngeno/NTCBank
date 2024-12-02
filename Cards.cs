@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace NTCBank
 {
+    //this would be either credit or debit cards 
     internal class Cards
     {
     }
