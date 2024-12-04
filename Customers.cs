@@ -12,7 +12,10 @@ namespace NTCBank
     //different methods applied to them
     public class Customers
     {
-        private string Customer { get; set; }
+        public string CustomerName { get; set; }
+        private string CustomerEmail;
+        private string CustomerPhone;
+        private string CustomerAddress;
       
     }
 }
