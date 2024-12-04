@@ -24,6 +24,9 @@ namespace NTCBank
             set { _AccountNumber = value; }
             get { return _AccountNumber; }
         }
+        private decimal _Balance;
+        public decimal Balance
+            { get { return _Balance; } }
         //private string _AccountPassword;
         public Accounts()
         {
@@ -46,16 +49,20 @@ namespace NTCBank
         {
 
         }
-        public void WidthrawFunds()
+        public void WithdrawFunds()
         {
 
+        }
+        public void GetBalance()
+        {
+            Console.WriteLine($"Current Balance: {Balance}");
         }
         public class Savings : Accounts
         {
             public Savings()
             {
             }
-            private static void SetInterest()
+            public static void SetInterest()
             {
 
             }
@@ -68,11 +75,11 @@ namespace NTCBank
             {
 
             }
-            private static void SetOverDraft()
+            public static void SetOverDraft()
             {
 
             }
-            private static void GetOverDraft()
+            public static void GetOverDraft()
             {
 
             }
@@ -84,7 +91,11 @@ namespace NTCBank
             {
 
             }
-            private static void CalculateProfit()
+            public static void CalculateProfit()
+            {
+
+            }
+            public static void MakeTrade()
             {
 
             }
