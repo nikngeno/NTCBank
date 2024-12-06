@@ -9,5 +9,14 @@ namespace NTCBank
     //this would be either credit or debit cards 
     internal class Cards
     {
+        public string CardName;
+        public int CardNumber;
+  
+
+    public Cards()
+        {
+            this.CardName = string.Empty;
+            this.CardNumber = 0;
+        }
     }
 }
