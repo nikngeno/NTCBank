@@ -1,4 +1,4 @@
-﻿using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace NTCBank
 {
@@ -14,10 +13,12 @@ namespace NTCBank
     {
         static void Main(string[] args)
         {
-            bool running = true;
             Console.WriteLine("Welcome to the NTCBank Management System!");
-            List<Accounts> accounts = new List<Accounts>();
 
+            // Load existing accounts from the sheet at startup
+            List<Accounts> accounts = GoogleSheetsService.GetAllAccountsFromSheet();
+
+            bool running = true;
             while (running)
             {
                 Console.WriteLine("\nPlease select an action:");
