@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 namespace NTCBank
 {
-    // class that will hold different type of customers - from cooperate, SME and indivudual account that would have
-    //different methods applied to them
     public class Customers
     {
         public string CustomerName { get; set; }
@@ -18,7 +16,6 @@ namespace NTCBank
         private string CustomerPhone;
         private string CustomerAddress;
 
-        //constructor for customer detail intailization
         public Customers(string name, string type, string email, string phone, string address)
         {
             CustomerName = name;
@@ -28,14 +25,13 @@ namespace NTCBank
             CustomerAddress = address;
         }
 
-        //method to update email
         public void UpdateEmail(string newEmail)
         {
             if (string.IsNullOrEmpty(newEmail) || !newEmail.Contains("@"))
                 throw new ArgumentException("Invalid email address.");
             CustomerEmail = newEmail;
         }
-        // Method to update phone number
+
         public void UpdatePhone(string newPhone)
         {
             if (string.IsNullOrEmpty(newPhone) || newPhone.Length < 10)
@@ -43,7 +39,6 @@ namespace NTCBank
             CustomerPhone = newPhone;
         }
 
-        // Method to update address
         public void UpdateAddress(string newAddress)
         {
             if (string.IsNullOrEmpty(newAddress))
@@ -51,7 +46,6 @@ namespace NTCBank
             CustomerAddress = newAddress;
         }
 
-        // Method to display customer details
         public void DisplayCustomerDetails()
         {
             Console.WriteLine("Customer Details:");
@@ -60,6 +54,21 @@ namespace NTCBank
             Console.WriteLine($"Email: {CustomerEmail}");
             Console.WriteLine($"Phone: {CustomerPhone}");
             Console.WriteLine($"Address: {CustomerAddress}");
+        }
+
+        public string GetEmail()
+        {
+            return CustomerEmail;
+        }
+
+        public string GetPhone()
+        {
+            return CustomerPhone;
+        }
+
+        public string GetAddress()
+        {
+            return CustomerAddress;
         }
     }
 }

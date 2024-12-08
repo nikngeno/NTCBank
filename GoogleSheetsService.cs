@@ -5,7 +5,6 @@ using Google.Apis.Sheets.v4.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace NTCBank
 {
@@ -13,7 +12,7 @@ namespace NTCBank
     {
         private static readonly string ApplicationName = "NTCBank";
         private static readonly string SpreadsheetId = "1FzTzsWgELcgu92NDD09ZitshEJIM2DPA0zcpL2cx6Jg";
-        private static readonly string SheetName = "Sheet1"; 
+        private static readonly string SheetName = "Sheet1";
         private static SheetsService _service;
 
         static GoogleSheetsService()
@@ -23,8 +22,6 @@ namespace NTCBank
 
         private static void InitializeService()
         {
-            // Make sure you have saved your service account JSON to "service_account.json"
-            // and that the service account email is shared with the sheet.
             GoogleCredential credential;
             using (var stream = new FileStream("service_account.json", FileMode.Open, FileAccess.Read))
             {
@@ -41,10 +38,10 @@ namespace NTCBank
         /// <summary>
         /// Finds the row number of the given account in the sheet by AccountNumber.
         /// If not found, returns -1.
-      
+        /// </summary>
         private static int FindAccountRowInSheet(long accountNumber)
         {
-            var range = $"{SheetName}!A2:A"; // We will look for account numbers in column A
+            var range = $"{SheetName}!A2:A";
             var request = _service.Spreadsheets.Values.Get(SpreadsheetId, range);
             var response = request.Execute();
             var values = response.Values;
@@ -52,7 +49,6 @@ namespace NTCBank
             if (values == null || values.Count == 0)
                 return -1;
 
-            // Values start from row 2 in the sheet (A2), so we need to add an offset
             for (int i = 0; i < values.Count; i++)
             {
                 var row = values[i];
@@ -60,8 +56,7 @@ namespace NTCBank
                 {
                     if (existingAccNum == accountNumber)
                     {
-                        // Row index in the sheet (1-based). Since we started from A2, we add 2 for header offset.
-                        return i + 2;
+                        return i + 2; // +2 because we're starting from A2
                     }
                 }
             }
@@ -71,8 +66,7 @@ namespace NTCBank
 
         /// <summary>
         /// Updates the Google Sheet with the latest account details.
-        /// If the account does not exist, it appends a new row.
-        /// If it does exist, it updates that existing row.
+        /// Columns: A:AccountNumber, B:AccountName, C:CustomerName, D:CustomerType, E:Balance, F:CustomerEmail, G:CustomerPhone, H:CustomerAddress
         /// </summary>
         public static void UpdateAccountDetails(Accounts account)
         {
@@ -80,22 +74,24 @@ namespace NTCBank
                 return;
 
             var rowNumber = FindAccountRowInSheet(account.AccountNumber);
-
-            // Data structure: AccountNumber, AccountName, CustomerName, CustomerType, Balance
             var rowData = new List<object>()
             {
                 account.AccountNumber,
                 account.AccountName,
                 account.AssociatedCustomer.CustomerName,
                 account.AssociatedCustomer.CustomerType,
-                account.Balance.ToString()
+                account.Balance.ToString(),
+                account.AssociatedCustomer.GetEmail(),
+                account.AssociatedCustomer.GetPhone(),
+                account.AssociatedCustomer.GetAddress()
             };
+
+            var valueRange = new ValueRange { Values = new List<IList<object>> { rowData } };
 
             if (rowNumber == -1)
             {
                 // Append new row
-                var range = $"{SheetName}!A:E";
-                var valueRange = new ValueRange { Values = new List<IList<object>> { rowData } };
+                var range = $"{SheetName}!A:H";
                 var appendRequest = _service.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
                 appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
                 appendRequest.Execute();
@@ -104,8 +100,7 @@ namespace NTCBank
             else
             {
                 // Update existing row
-                var range = $"{SheetName}!A{rowNumber}:E{rowNumber}";
-                var valueRange = new ValueRange { Values = new List<IList<object>> { rowData } };
+                var range = $"{SheetName}!A{rowNumber}:H{rowNumber}";
                 var updateRequest = _service.Spreadsheets.Values.Update(valueRange, SpreadsheetId, range);
                 updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
                 updateRequest.Execute();
@@ -114,13 +109,13 @@ namespace NTCBank
         }
 
         /// <summary>
-        /// Retrieves all accounts from the sheet and returns them as a list of Accounts.
-        /// This method can be used if you want to pull existing data from the sheet.
+        /// Retrieves all accounts from the sheet.
+        /// Columns expected: AccountNumber, AccountName, CustomerName, CustomerType, Balance, CustomerEmail, CustomerPhone, CustomerAddress
         /// </summary>
         public static List<Accounts> GetAllAccountsFromSheet()
         {
             var result = new List<Accounts>();
-            var range = $"{SheetName}!A2:E"; // Assuming first row is headers
+            var range = $"{SheetName}!A2:H"; // Assuming first row is headers
             var request = _service.Spreadsheets.Values.Get(SpreadsheetId, range);
             var response = request.Execute();
             var values = response.Values;
@@ -133,19 +128,23 @@ namespace NTCBank
 
             foreach (var row in values)
             {
-                if (row.Count < 5)
+                if (row.Count < 8)
                     continue;
 
+                // Extract and validate row data
                 if (!long.TryParse(row[0].ToString(), out long accNumber))
                     continue;
 
-                var accName = row[1].ToString();
-                var customerName = row[2].ToString();
-                var customerType = row[3].ToString();
+                string accName = row[1].ToString();
+                string customerName = row[2].ToString();
+                string customerType = row[3].ToString();
                 if (!decimal.TryParse(row[4].ToString(), out decimal balance))
                     continue;
+                string customerEmail = row[5].ToString();
+                string customerPhone = row[6].ToString();
+                string customerAddress = row[7].ToString();
 
-                // Create the appropriate account type based on AccountName if needed
+                // Create appropriate account type based on AccountName
                 Accounts account;
                 switch (accName.ToLower())
                 {
@@ -164,13 +163,16 @@ namespace NTCBank
                 }
 
                 account.CreateAccount(accName, (int)accNumber);
-                // We don't have full customer info (like Email, Phone, Address) from sheet here.
-                // You may want to store these in the sheet as well. For now, just create a stub:
-                var customer = new Customers(customerName, customerType, "N/A", "N/A", "N/A");
+
+                // Create the Customers object using retrieved details
+                var customer = new Customers(customerName, customerType, customerEmail, customerPhone, customerAddress);
                 account.AssociatedCustomer = customer;
 
-                // Reflect balance
-                account.DepositFunds(balance);
+                // Set the account balance by depositing the retrieved amount (0 initial + balance)
+                if (balance > 0)
+                {
+                    account.DepositFunds(balance);
+                }
 
                 result.Add(account);
             }
