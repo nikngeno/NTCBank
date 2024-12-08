@@ -8,14 +8,22 @@ using System.Threading.Tasks;
 
 namespace NTCBank
 {
-    // class that will hold different type of customers - from cooperate, SME and indivudual account that would have
-    //different methods applied to them
-    public class Customers
+    internal class Customer
     {
-        public string CustomerName { get; set; }
-        private string CustomerEmail;
-        private string CustomerPhone;
-        private string CustomerAddress;
-      
+        public string Name { get; set; }
+        public string Address { get; set; }
+        public string Phone { get; set; }
+
+        public Customer(string name, string address, string phone)
+        {
+            Name = name;
+            Address = address;
+            Phone = phone;
+        }
+
+        public string GetCustomerDetails()
+        {
+            return $"Name: {Name}, Address: {Address}, Phone: {Phone}";
+        }
     }
 }
