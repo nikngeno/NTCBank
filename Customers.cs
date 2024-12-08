@@ -13,7 +13,7 @@ namespace NTCBank
     public class Customers
     {
         public string CustomerName { get; set; }
-        Public string CustomerType {get; set;}
+        public string CustomerType {get; set;}
         private string CustomerEmail;
         private string CustomerPhone;
         private string CustomerAddress;
