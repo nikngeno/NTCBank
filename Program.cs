@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace NTCBank
 {
@@ -15,7 +16,7 @@ namespace NTCBank
         {
             bool running = true;
             Console.WriteLine("Welcome to the NTCBank Management System!");
-            List<Accounts> allAccounts = new List<Accounts>();
+            List<Accounts> accounts = new List<Accounts>();
 
             while (running)
             {
@@ -30,13 +31,13 @@ namespace NTCBank
                 switch (choice)
                 {
                     case "1":
-                        OpenAccountWorkflow(allAccounts);
+                        OpenAccount(accounts);
                         break;
                     case "2":
-                        DepositWorkflow(allAccounts);
+                        MakeDeposit(accounts);
                         break;
                     case "3":
-                        WithdrawalWorkflow(allAccounts);
+                        MakeWithdrawal(accounts);
                         break;
                     case "4":
                         running = false;
@@ -49,24 +50,50 @@ namespace NTCBank
             }
         }
 
-        private static void OpenAccountWorkflow(List<Accounts> allAccounts)
+        private static void OpenAccount(List<Accounts> accounts)
         {
             Console.WriteLine("\n=== Open Account ===");
             Console.Write("Enter Customer Name: ");
-            string customerName = Console.ReadLine()?.Trim();
-            if (string.IsNullOrEmpty(customerName))
+            string name = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(name))
             {
                 Console.WriteLine("Invalid customer name. Returning to main menu.");
                 return;
             }
 
-            Console.Write("Enter Customer Address: ");
-            string customerAddress = Console.ReadLine()?.Trim();
+            Console.Write("Enter Customer Type (e.g. Individual, SME, Corporate): ");
+            string type = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(type))
+            {
+                Console.WriteLine("Invalid customer type. Returning to main menu.");
+                return;
+            }
+
+            Console.Write("Enter Customer Email: ");
+            string email = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(email) || !email.Contains("@"))
+            {
+                Console.WriteLine("Invalid email address. Returning to main menu.");
+                return;
+            }
 
             Console.Write("Enter Customer Phone: ");
-            string customerPhone = Console.ReadLine()?.Trim();
+            string phone = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(phone))
+            {
+                Console.WriteLine("Invalid phone number. Returning to main menu.");
+                return;
+            }
 
-            var customer = new Customer(customerName, customerAddress, customerPhone);
+            Console.Write("Enter Customer Address: ");
+            string address = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(address))
+            {
+                Console.WriteLine("Address cannot be empty. Returning to main menu.");
+                return;
+            }
+
+            var customer = new Customers(name, type, email, phone, address);
 
             Console.WriteLine("\nSelect the type of account to open:");
             Console.WriteLine("1. Savings");
@@ -104,19 +131,18 @@ namespace NTCBank
                 Console.WriteLine("Invalid amount. Returning to main menu.");
                 return;
             }
+
             account.DepositFunds(initialDeposit);
             account.GetAccountDetails();
-            Console.WriteLine($"Customer: {account.AssociatedCustomer.GetCustomerDetails()}");
+            account.AssociatedCustomer.DisplayCustomerDetails();
 
-            // Update Google Sheets with new account/customer details
             GoogleSheetsService.UpdateAccountDetails(account);
-
-            allAccounts.Add(account);
+            accounts.Add(account);
         }
 
-        private static void DepositWorkflow(List<Accounts> allAccounts)
+        private static void MakeDeposit(List<Accounts> accounts)
         {
-            if (allAccounts.Count == 0)
+            if (accounts.Count == 0)
             {
                 Console.WriteLine("No accounts found. Please open an account first.");
                 return;
@@ -130,7 +156,7 @@ namespace NTCBank
                 return;
             }
 
-            var account = allAccounts.Find(a => a.AccountNumber == accNumber);
+            var account = accounts.Find(a => a.AccountNumber == accNumber);
             if (account == null)
             {
                 Console.WriteLine("Account not found.");
@@ -146,13 +172,12 @@ namespace NTCBank
             }
 
             account.DepositFunds(depositAmount);
-            // Update Google Sheets with new balance
             GoogleSheetsService.UpdateAccountDetails(account);
         }
 
-        private static void WithdrawalWorkflow(List<Accounts> allAccounts)
+        private static void MakeWithdrawal(List<Accounts> accounts)
         {
-            if (allAccounts.Count == 0)
+            if (accounts.Count == 0)
             {
                 Console.WriteLine("No accounts found. Please open an account first.");
                 return;
@@ -166,7 +191,7 @@ namespace NTCBank
                 return;
             }
 
-            var account = allAccounts.Find(a => a.AccountNumber == accNumber);
+            var account = accounts.Find(a => a.AccountNumber == accNumber);
             if (account == null)
             {
                 Console.WriteLine("Account not found.");
@@ -182,7 +207,6 @@ namespace NTCBank
             }
 
             account.WithdrawFunds(withdrawalAmount);
-            // Update Google Sheets with new balance
             GoogleSheetsService.UpdateAccountDetails(account);
         }
     }
