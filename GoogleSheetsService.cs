@@ -35,10 +35,8 @@ namespace NTCBank
             });
         }
 
-        /// <summary>
-        /// Finds the row number of the given account in the sheet by AccountNumber.
-        /// If not found, returns -1.
-        /// </summary>
+        //Finds the row number of the given account in the sheet by AccountNumber.
+        //If not found, returns -1.
         private static int FindAccountRowInSheet(long accountNumber)
         {
             var range = $"{SheetName}!A2:A";
@@ -64,10 +62,8 @@ namespace NTCBank
             return -1;
         }
 
-        /// <summary>
-        /// Updates the Google Sheet with the latest account details.
-        /// Columns: A:AccountNumber, B:AccountName, C:CustomerName, D:CustomerType, E:Balance, F:CustomerEmail, G:CustomerPhone, H:CustomerAddress
-        /// </summary>
+        //Updates the Google Sheet with the latest account details.
+        //Columns: A:AccountNumber, B:AccountName, C:CustomerName, D:CustomerType, E:Balance, F:CustomerEmail, G:CustomerPhone, H:CustomerAddress
         public static void UpdateAccountDetails(Accounts account)
         {
             if (account == null || account.AssociatedCustomer == null)
@@ -108,10 +104,9 @@ namespace NTCBank
             }
         }
 
-        /// <summary>
-        /// Retrieves all accounts from the sheet.
-        /// Columns expected: AccountNumber, AccountName, CustomerName, CustomerType, Balance, CustomerEmail, CustomerPhone, CustomerAddress
-        /// </summary>
+        //Retrieves all accounts from the sheet.
+        //Columns expected: AccountNumber, AccountName, CustomerName, CustomerType, Balance, CustomerEmail, CustomerPhone, CustomerAddress
+       
         public static List<Accounts> GetAllAccountsFromSheet()
         {
             var result = new List<Accounts>();

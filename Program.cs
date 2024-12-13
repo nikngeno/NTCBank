@@ -42,7 +42,7 @@ namespace NTCBank
                         break;
                     case "4":
                         running = false;
-                        Console.WriteLine("Thank you for using the Bank Management System. Goodbye!");
+                        Console.WriteLine("Thank you for using the NTCBank Management System. Goodbye!");
                         break;
                     default:
                         Console.WriteLine("Invalid input. Please try again.");
