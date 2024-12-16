@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NTCBank
 {
-    // similar to customers this would be something like savings or checkings or trading accounts
     internal class Accounts
     {
         private string _AccountName;
@@ -17,89 +10,86 @@ namespace NTCBank
             set { _AccountName = value; }
             get { return _AccountName; }
         }
-        private long _AccountNumber;
 
-        public long AccountNumber 
+        private long _AccountNumber;
+        public long AccountNumber
         {
             set { _AccountNumber = value; }
             get { return _AccountNumber; }
         }
+
         private decimal _Balance;
         public decimal Balance
-            { get { return _Balance; } }
-        //private string _AccountPassword;
+        {
+            get { return _Balance; }
+        }
+
+        public Customers AssociatedCustomer { get; set; }
+
         public Accounts()
         {
-            this.AccountNumber = 0;
-            this.AccountName = string.Empty;
+            AccountNumber = 0;
+            AccountName = string.Empty;
         }
-        public void CreateAccount(string AccountName, int AccountNumber)
-        {
 
+        public void CreateAccount(string accountName, int accountNumber)
+        {
+            AccountName = accountName;
+            AccountNumber = accountNumber;
         }
+
         public void GetAccountDetails()
         {
-
+            Console.WriteLine($"Account Name: {AccountName}, Account Number: {AccountNumber}, Balance: {Balance}");
         }
-        public void CloseAccount()
+
+        public void DepositFunds(decimal amount)
         {
-
+            if (amount > 0)
+            {
+                _Balance += amount;
+                Console.WriteLine($"{amount} deposited successfully. New balance: {Balance}");
+            }
+            else
+            {
+                Console.WriteLine("Invalid deposit amount.");
+            }
         }
-        public void DepositFunds()
+
+        public void WithdrawFunds(decimal amount)
         {
+            if (amount <= 0)
+            {
+                Console.WriteLine("Invalid withdrawal amount.");
+                return;
+            }
 
+            if (amount <= _Balance)
+            {
+                _Balance -= amount;
+                Console.WriteLine($"{amount} withdrawn successfully. Remaining balance: {Balance}");
+            }
+            else
+            {
+                Console.WriteLine("Insufficient funds.");
+            }
         }
-        public void WithdrawFunds()
-        {
 
-        }
         public void GetBalance()
         {
             Console.WriteLine($"Current Balance: {Balance}");
         }
+
         public class Savings : Accounts
         {
-            public Savings()
-            {
-            }
-            public static void SetInterest()
-            {
-
-            }
-
         }
-        
+
         public class Checkings : Accounts
         {
-            public Checkings()
-            {
-
-            }
-            public static void SetOverDraft()
-            {
-
-            }
-            public static void GetOverDraft()
-            {
-
-            }
         }
 
         public class Trading : Accounts
         {
-            public Trading()
-            {
-
-            }
-            public static void CalculateProfit()
-            {
-
-            }
-            public static void MakeTrade()
-            {
-
-            }
-
         }
     }
 }

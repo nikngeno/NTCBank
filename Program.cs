@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace NTCBank
 {
@@ -14,10 +13,12 @@ namespace NTCBank
     {
         static void Main(string[] args)
         {
-            bool running = true;
             Console.WriteLine("Welcome to the NTCBank Management System!");
-            List<Accounts> accounts = new List<Accounts>();
 
+            // Load existing accounts from the sheet at startup
+            List<Accounts> accounts = GoogleSheetsService.GetAllAccountsFromSheet();
+
+            bool running = true;
             while (running)
             {
                 Console.WriteLine("\nPlease select an action:");
@@ -41,7 +42,7 @@ namespace NTCBank
                         break;
                     case "4":
                         running = false;
-                        Console.WriteLine("Thank you for using the Bank Management System. Goodbye!");
+                        Console.WriteLine("Thank you for using the NTCBank Management System. Goodbye!");
                         break;
                     default:
                         Console.WriteLine("Invalid input. Please try again.");
